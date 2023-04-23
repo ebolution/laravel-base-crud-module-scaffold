@@ -11,6 +11,7 @@ namespace Ebolution\BaseCrudModuleScaffold\Infrastructure\ServiceProviders;
 
 use Ebolution\BaseCrudModule\Domain\Contracts;
 use Ebolution\BaseCrudModule\Domain\Contracts\UseCases;
+use Ebolution\BaseCrudModule\Domain\SaveRequestFactory;
 use Ebolution\BaseCrudModuleScaffold\Application;
 use Ebolution\BaseCrudModuleScaffold\Infrastructure\Controllers;
 use Ebolution\BaseCrudModuleScaffold\Infrastructure\Repositories\EloquentRepository;
@@ -41,6 +42,11 @@ final class DependencyServicesProvider extends ServiceProvider
                 ->needs(Contracts\RepositoryInterface::class)
                 ->give(EloquentRepository::class);
         }
+
+        $this->app
+            ->when(Application\Create\CreateUseCase::class)
+            ->needs(Contracts\SaveRequestFactoryInterface::class)
+            ->give(SaveRequestFactory::class);
     }
 
     private function loadControllers(): void
@@ -68,6 +74,11 @@ final class DependencyServicesProvider extends ServiceProvider
 
     private function loadHttpApi(): void
     {
+        $this->app
+            ->when(Controllers\SaveController::class)
+            ->needs(UseCases\CreateInterface::class)
+            ->give(Application\Create\CreateUseCase::class);
+
         $this->app
             ->when(Controllers\Http\Api\Delete::class)
             ->needs(Contracts\ControllerRequestByIdInterface::class)
