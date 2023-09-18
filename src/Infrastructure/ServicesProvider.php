@@ -20,4 +20,11 @@ final class ServicesProvider extends ModuleManagerServiceProviders
         ServiceProviders\DependencyServicesProvider::class,
         ServiceProviders\RouteServicesProvider::class
     ];
+
+    public function boot()
+    {
+        if (app()->runningInConsole()) {
+            $this->registerMigrations();
+        }
+    }
 }

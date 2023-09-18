@@ -9,22 +9,46 @@
 
 namespace Ebolution\BaseCrudModuleScaffold\Infrastructure\ServiceProviders;
 
+use Ebolution\BaseCrudModule\Application\Collaborator\RequestDataProcessor;
 use Ebolution\BaseCrudModule\Domain\Contracts;
+use Ebolution\BaseCrudModule\Domain\Contracts\RequestDataProcessorInterface;
 use Ebolution\BaseCrudModule\Domain\Contracts\UseCases;
 use Ebolution\BaseCrudModule\Domain\SaveRequestFactory;
+use Ebolution\BaseCrudModule\Infrastructure\Contracts\ValidatorLoaderInterface;
 use Ebolution\BaseCrudModuleScaffold\Application;
 use Ebolution\BaseCrudModuleScaffold\Infrastructure\Controllers;
 use Ebolution\BaseCrudModuleScaffold\Infrastructure\Repositories\EloquentRepository;
+use Ebolution\BaseCrudModuleScaffold\Infrastructure\Requests\SaveRequest;
+use Ebolution\BaseCrudModuleScaffold\Infrastructure\Requests\UpdateRequest;
 use Illuminate\Support\ServiceProvider;
 
 final class DependencyServicesProvider extends ServiceProvider
 {
+    private array $defaultImplementations = [
+        Contracts\RepositoryInterface::class => EloquentRepository::class,
+        Contracts\SaveRequestFactoryInterface::class => SaveRequestFactory::class,
+        RequestDataProcessorInterface::class => RequestDataProcessor::class,
+    ];
+
     private array $useCases = [
-        Application\Create\CreateUseCase::class,
-        Application\Delete\DeleteByIdUseCase::class,
-        Application\Read\FindByIdUseCase::class,
-        Application\Read\FindAllUseCase::class,
-        Application\Update\UpdateByIdUseCase::class
+        Application\Create\CreateUseCase::class => [
+            Contracts\RepositoryInterface::class,
+            Contracts\SaveRequestFactoryInterface::class,
+            RequestDataProcessorInterface::class,
+        ],
+        Application\Delete\DeleteByIdUseCase::class => [
+            Contracts\RepositoryInterface::class
+        ],
+        Application\Read\FindByIdUseCase::class => [
+            Contracts\RepositoryInterface::class
+        ],
+        Application\Read\FindAllUseCase::class => [
+            Contracts\RepositoryInterface::class
+        ],
+        Application\Update\UpdateByIdUseCase::class => [
+            Contracts\RepositoryInterface::class,
+            RequestDataProcessorInterface::class,
+        ],
     ];
 
     public function register(): void
@@ -32,21 +56,21 @@ final class DependencyServicesProvider extends ServiceProvider
         $this->loadUseCases();
         $this->loadControllers();
         $this->loadHttpApi();
+        $this->loadFormRequests();
     }
 
     private function loadUseCases(): void
     {
-        foreach ($this->useCases as $useCase) {
-            $this->app
-                ->when($useCase)
-                ->needs(Contracts\RepositoryInterface::class)
-                ->give(EloquentRepository::class);
+        foreach ($this->useCases as $useCase => $interfaces) {
+            foreach ($interfaces as $interface) {
+                if (array_key_exists($interface, $this->defaultImplementations)) {
+                    $this->app
+                        ->when($useCase)
+                        ->needs($interface)
+                        ->give($this->defaultImplementations[$interface]);
+                }
+            }
         }
-
-        $this->app
-            ->when(Application\Create\CreateUseCase::class)
-            ->needs(Contracts\SaveRequestFactoryInterface::class)
-            ->give(SaveRequestFactory::class);
     }
 
     private function loadControllers(): void
@@ -103,5 +127,18 @@ final class DependencyServicesProvider extends ServiceProvider
             ->when(Controllers\Http\Api\Update::class)
             ->needs(Contracts\ControllerRequestByIdInterface::class)
             ->give(Controllers\UpdateByIdController::class);
+    }
+
+    private function loadFormRequests(): void
+    {
+        $this->app
+            ->when(Controllers\Http\Api\Save::class)
+            ->needs(ValidatorLoaderInterface::class)
+            ->give(SaveRequest::class);
+
+        $this->app
+            ->when(Controllers\Http\Api\Update::class)
+            ->needs(ValidatorLoaderInterface::class)
+            ->give(UpdateRequest::class);
     }
 }
