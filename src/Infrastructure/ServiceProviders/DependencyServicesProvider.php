@@ -94,15 +94,15 @@ final class DependencyServicesProvider extends ServiceProvider
             ->when(Controllers\UpdateByIdController::class)
             ->needs(UseCases\UpdateInterface::class)
             ->give(Application\Update\UpdateByIdUseCase::class);
-    }
 
-    private function loadHttpApi(): void
-    {
         $this->app
             ->when(Controllers\SaveController::class)
             ->needs(UseCases\CreateInterface::class)
             ->give(Application\Create\CreateUseCase::class);
+    }
 
+    private function loadHttpApi(): void
+    {
         $this->app
             ->when(Controllers\Http\Api\Delete::class)
             ->needs(Contracts\ControllerRequestByIdInterface::class)
