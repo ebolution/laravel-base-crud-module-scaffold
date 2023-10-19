@@ -1,7 +1,7 @@
 <?php
 /**
  * @category  Ebolution
- * @package   Ebolution/__MODULE__
+ * @package   Ebolution/BaseCrudModuleScaffold
  * @author    @module.author.name @module.author.email
  * @copyright @module.copyright
  * @license   @module.license

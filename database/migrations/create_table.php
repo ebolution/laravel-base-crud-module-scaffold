@@ -1,4 +1,11 @@
 <?php
+/**
+ * @category  Ebolution
+ * @package   Ebolution/BaseCrudModuleScaffold
+ * @author    @module.author.name @module.author.email
+ * @copyright @module.copyright
+ * @license   @module.license
+ */
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

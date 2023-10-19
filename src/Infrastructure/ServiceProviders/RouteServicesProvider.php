@@ -4,8 +4,9 @@
  * @package   Ebolution/BaseCrudModuleScaffold
  * @author    @module.author.name @module.author.email
  * @copyright @module.copyright
- * @license   MIT - https://www.ebolution.com/
+ * @license   @module.license
  */
+
 
 namespace Ebolution\BaseCrudModuleScaffold\Infrastructure\ServiceProviders;
 
