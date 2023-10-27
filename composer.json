@@ -14,8 +14,8 @@
         }
     ],
     "require": {
-        "ebolution/laravel-base-crud-module": "*",
-        "ebolution/laravel-module-manager": "*"
+        "ebolution/laravel-base-crud-module": "^3",
+        "ebolution/laravel-module-manager": "^1"
     },
     "autoload": {
         "psr-4": {

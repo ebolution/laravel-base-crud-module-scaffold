@@ -9,7 +9,6 @@
 
 namespace Ebolution\BaseCrudModuleScaffold\Infrastructure;
 
-use Ebolution\BaseCrudModuleScaffold\Infrastructure\ServiceProviders;
 use Ebolution\ModuleManager\Infrastructure\ServicesProvider as ModuleManagerServiceProviders;
 
 final class ServicesProvider extends ModuleManagerServiceProviders

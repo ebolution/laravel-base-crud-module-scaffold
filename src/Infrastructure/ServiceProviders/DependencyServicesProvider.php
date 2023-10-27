@@ -15,6 +15,7 @@ use Ebolution\BaseCrudModule\Domain\Contracts\RequestDataProcessorInterface;
 use Ebolution\BaseCrudModule\Domain\Contracts\UseCases;
 use Ebolution\BaseCrudModule\Domain\SaveRequestFactory;
 use Ebolution\BaseCrudModule\Infrastructure\Contracts\ValidatorLoaderInterface;
+use Ebolution\BaseCrudModule\Infrastructure\Events\NullEventEmitter;
 use Ebolution\BaseCrudModuleScaffold\Application;
 use Ebolution\BaseCrudModuleScaffold\Infrastructure\Controllers;
 use Ebolution\BaseCrudModuleScaffold\Infrastructure\Repositories\EloquentRepository;
@@ -28,6 +29,7 @@ final class DependencyServicesProvider extends ServiceProvider
         Contracts\RepositoryInterface::class => EloquentRepository::class,
         Contracts\SaveRequestFactoryInterface::class => SaveRequestFactory::class,
         RequestDataProcessorInterface::class => RequestDataProcessor::class,
+        Contracts\EventEmitterInterface::class => NullEventEmitter::class,
     ];
 
     private array $useCases = [
@@ -35,19 +37,22 @@ final class DependencyServicesProvider extends ServiceProvider
             Contracts\RepositoryInterface::class,
             Contracts\SaveRequestFactoryInterface::class,
             RequestDataProcessorInterface::class,
+            Contracts\EventEmitterInterface::class,
         ],
         Application\Delete\DeleteByIdUseCase::class => [
-            Contracts\RepositoryInterface::class
+            Contracts\RepositoryInterface::class,
+            Contracts\EventEmitterInterface::class,
         ],
         Application\Read\FindByIdUseCase::class => [
-            Contracts\RepositoryInterface::class
+            Contracts\RepositoryInterface::class,
         ],
         Application\Read\FindAllUseCase::class => [
-            Contracts\RepositoryInterface::class
+            Contracts\RepositoryInterface::class,
         ],
         Application\Update\UpdateByIdUseCase::class => [
             Contracts\RepositoryInterface::class,
             RequestDataProcessorInterface::class,
+            Contracts\EventEmitterInterface::class,
         ],
     ];
 
