@@ -21,7 +21,10 @@ use Ebolution\BaseCrudModuleScaffold\Infrastructure\Controllers;
 use Ebolution\BaseCrudModuleScaffold\Infrastructure\Repositories\EloquentRepository;
 use Ebolution\BaseCrudModuleScaffold\Infrastructure\Requests\SaveRequest;
 use Ebolution\BaseCrudModuleScaffold\Infrastructure\Requests\UpdateRequest;
+use Ebolution\BaseCrudModule\Infrastructure\Logger\DefaultLoggerBuilder;
+use Ebolution\Logger;
 use Illuminate\Support\ServiceProvider;
+
 
 final class DependencyServicesProvider extends ServiceProvider
 {
@@ -30,6 +33,7 @@ final class DependencyServicesProvider extends ServiceProvider
         Contracts\SaveRequestFactoryInterface::class => SaveRequestFactory::class,
         RequestDataProcessorInterface::class => RequestDataProcessor::class,
         Contracts\EventEmitterInterface::class => NullEventEmitter::class,
+        Logger\Domain\LoggerFactoryInterface::class => Logger\Infrastructure\LoggerFactory::class,
     ];
 
     private array $useCases = [
@@ -38,10 +42,12 @@ final class DependencyServicesProvider extends ServiceProvider
             Contracts\SaveRequestFactoryInterface::class,
             RequestDataProcessorInterface::class,
             Contracts\EventEmitterInterface::class,
+            Logger\Domain\LoggerFactoryInterface::class,
         ],
         Application\Delete\DeleteByIdUseCase::class => [
             Contracts\RepositoryInterface::class,
             Contracts\EventEmitterInterface::class,
+            Logger\Domain\LoggerFactoryInterface::class,
         ],
         Application\Read\FindByIdUseCase::class => [
             Contracts\RepositoryInterface::class,
@@ -53,6 +59,25 @@ final class DependencyServicesProvider extends ServiceProvider
             Contracts\RepositoryInterface::class,
             RequestDataProcessorInterface::class,
             Contracts\EventEmitterInterface::class,
+            Logger\Domain\LoggerFactoryInterface::class,
+        ],
+    ];
+
+    private array $apiControllers = [
+        Controllers\Http\Api\Delete::class => [
+            Logger\Domain\LoggerFactoryInterface::class,
+        ],
+        Controllers\Http\Api\Find::class => [
+            Logger\Domain\LoggerFactoryInterface::class,
+        ],
+        Controllers\Http\Api\FindAll::class => [
+            Logger\Domain\LoggerFactoryInterface::class,
+        ],
+        Controllers\Http\Api\Save::class => [
+            Logger\Domain\LoggerFactoryInterface::class,
+        ],
+        Controllers\Http\Api\Update::class => [
+            Logger\Domain\LoggerFactoryInterface::class,
         ],
     ];
 
@@ -62,6 +87,11 @@ final class DependencyServicesProvider extends ServiceProvider
         $this->loadControllers();
         $this->loadHttpApi();
         $this->loadFormRequests();
+
+        $this->app
+            ->when(Logger\Infrastructure\LoggerFactory::class)
+            ->needs(Logger\Domain\BuilderInterface::class)
+            ->give(DefaultLoggerBuilder::class);
     }
 
     private function loadUseCases(): void
@@ -108,6 +138,17 @@ final class DependencyServicesProvider extends ServiceProvider
 
     private function loadHttpApi(): void
     {
+        foreach ($this->apiControllers as $controller => $interfaces) {
+            foreach ($interfaces as $interface) {
+                if (array_key_exists($interface, $this->defaultImplementations)) {
+                    $this->app
+                        ->when($controller)
+                        ->needs($interface)
+                        ->give($this->defaultImplementations[$interface]);
+                }
+            }
+        }
+
         $this->app
             ->when(Controllers\Http\Api\Delete::class)
             ->needs(Contracts\ControllerRequestByIdInterface::class)
