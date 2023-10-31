@@ -21,8 +21,8 @@ use Ebolution\BaseCrudModuleScaffold\Infrastructure\Controllers;
 use Ebolution\BaseCrudModuleScaffold\Infrastructure\Repositories\EloquentRepository;
 use Ebolution\BaseCrudModuleScaffold\Infrastructure\Requests\SaveRequest;
 use Ebolution\BaseCrudModuleScaffold\Infrastructure\Requests\UpdateRequest;
-use Ebolution\BaseCrudModule\Infrastructure\Logger\DefaultLoggerBuilder;
 use Ebolution\Logger;
+use Ebolution\Logger\Infrastructure\DefaultLoggerBuilder;
 use Illuminate\Support\ServiceProvider;
 
 
@@ -87,11 +87,6 @@ final class DependencyServicesProvider extends ServiceProvider
         $this->loadControllers();
         $this->loadHttpApi();
         $this->loadFormRequests();
-
-        $this->app
-            ->when(Logger\Infrastructure\LoggerFactory::class)
-            ->needs(Logger\Domain\BuilderInterface::class)
-            ->give(DefaultLoggerBuilder::class);
     }
 
     private function loadUseCases(): void
