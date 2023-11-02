@@ -1,6 +1,6 @@
 {
     "name": "ebolution/laravel-base-crud-module-scaffold",
-    "description": "",
+    "description": "Scaffold used by laravel-base-crud-module-creator",
     "minimum-stability": "stable",
     "version": "1.0.0",
     "license": "MIT",
